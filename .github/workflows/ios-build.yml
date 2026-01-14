@@ -79,13 +79,62 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO
       
+      - name: Find Build Output
+        if: success()
+        working-directory: App
+        run: |
+          echo "🔍 البحث عن ملفات التطبيق المبني..."
+          echo "=== محتويات DerivedData ==="
+          find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d 2>/dev/null | head -10 || echo "لا توجد ملفات .app في DerivedData"
+          echo ""
+          echo "=== محتويات مجلد build المحلي ==="
+          find . -name "*.app" -type d 2>/dev/null || echo "لا توجد ملفات .app في المجلد المحلي"
+          echo ""
+          echo "=== مسارات Build Products ==="
+          ls -la ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Debug-iphonesimulator/ 2>/dev/null || echo "لا توجد مجلدات Build Products"
+      
+      - name: Copy Build Products
+        if: success()
+        working-directory: App
+        run: |
+          mkdir -p build-output
+          # نسخ من DerivedData إذا وجدت
+          if [ -d ~/Library/Developer/Xcode/DerivedData ]; then
+            find ~/Library/Developer/Xcode/DerivedData -name "App.app" -type d -exec cp -R {} build-output/ \; 2>/dev/null || echo "⚠️ لم يتم العثور على App.app"
+            find ~/Library/Developer/Xcode/DerivedData -name "*.dSYM" -type d -exec cp -R {} build-output/ \; 2>/dev/null || echo "⚠️ لم يتم العثور على dSYM"
+          fi
+          
+          # إظهار ما تم نسخه
+          echo "📦 الملفات المنسوخة:"
+          ls -la build-output/ || echo "لا توجد ملفات منسوخة"
+      
       - name: Upload Build Artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ios-app-debug
-          path: App/build/
-          retention-days: 7
+          name: ios-simulator-app-debug-${{ github.run_number }}
+          path: App/build-output/
+          retention-days: 30
+          if-no-files-found: warn
+      
+      - name: Build Success Summary
+        if: success()
+        run: |
+          echo "✅ تم بناء التطبيق بنجاح!"
+          echo ""
+          echo "📱 نوع البناء: iOS Simulator (Debug)"
+          echo "📂 مكان الحفظ: GitHub Actions Artifacts"
+          echo "⏰ مدة الحفظ: 30 يوم"
+          echo ""
+          echo "🔽 لتحميل التطبيق:"
+          echo "1. اذهب إلى صفحة Actions في GitHub"
+          echo "2. اختر هذا الـ workflow run"
+          echo "3. انزل إلى قسم 'Artifacts'"
+          echo "4. حمل الملف: ios-simulator-app-debug-${{ github.run_number }}"
+          echo ""
+          echo "📋 محتويات الملف المحمل:"
+          echo "- App.app (ملف التطبيق للمحاكي)"
+          echo "- ملفات dSYM (للتشخيص)"
 
   # Build for Simulator (Main branch only)
   build-simulator-release:
