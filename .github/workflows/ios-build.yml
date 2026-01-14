@@ -41,16 +41,10 @@ jobs:
         run: |
           if [ -f "package.json" ]; then
             npm install
-            npx cap sync ios || echo "⚠️ Capacitor sync not available"
+            npx cap sync ios
           else
             echo "No package.json found - skipping npm install"
           fi
-      
-      - name: Setup CocoaPods
-        working-directory: App
-        run: |
-          sudo gem install cocoapods
-          pod install
       
       - name: Setup Swift Package Manager Cache
         uses: actions/cache@v4
@@ -62,24 +56,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
       
-      - name: Resolve Dependencies
+      - name: Resolve Swift Package Dependencies
         working-directory: App
         run: |
-          if [ -f "App.xcworkspace" ]; then
-            echo "✅ Using CocoaPods workspace"
-          else
-            echo "📦 Using SPM project"
-            xcodebuild -resolvePackageDependencies \
-              -project App.xcodeproj \
-              -scheme App \
-              || echo "⚠️ Warning: Could not resolve all dependencies"
-          fi
+          xcodebuild -resolvePackageDependencies \
+            -project App.xcodeproj \
+            -scheme App \
+            || echo "⚠️ Warning: Could not resolve all dependencies"
       
       - name: Build iOS App (Debug - Simulator)
         working-directory: App
         run: |
           xcodebuild clean build \
-            -workspace App.xcworkspace \
+            -project App.xcodeproj \
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
