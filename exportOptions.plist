@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Export Method: app-store, ad-hoc, enterprise, development -->
+    <key>method</key>
+    <string>development</string>
+    
+    <!-- Team ID from Apple Developer Account -->
+    <key>teamID</key>
+    <string>YOUR_TEAM_ID_HERE</string>
+    
+    <!-- Upload Bitcode (deprecated for iOS apps) -->
+    <key>uploadBitcode</key>
+    <false/>
+    
+    <!-- Compile Bitcode -->
+    <key>compileBitcode</key>
+    <false/>
+    
+    <!-- Upload Symbols -->
+    <key>uploadSymbols</key>
+    <true/>
+    
+    <!-- Signing Style: manual or automatic -->
+    <key>signingStyle</key>
+    <string>automatic</string>
+    
+    <!-- Signing Certificate: iPhone Developer, iPhone Distribution, etc. -->
+    <key>signingCertificate</key>
+    <string>Apple Development</string>
+    
+    <!-- Provisioning Profiles (for manual signing) -->
+    <!-- <key>provisioningProfiles</key>
+    <dict>
+        <key>com.rakaz.store</key>
+        <string>YOUR_PROVISIONING_PROFILE_NAME</string>
+    </dict> -->
+    
+    <!-- Strip Swift Symbols -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+    
+    <!-- Thinning -->
+    <key>thinning</key>
+    <string>&lt;none&gt;</string>
+</dict>
+</plist>

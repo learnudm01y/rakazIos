@@ -1,0 +1,142 @@
+name: Code Quality Check
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  swift-lint:
+    name: Swift Code Quality
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+      
+      - name: Install SwiftLint
+        run: |
+          brew install swiftlint
+      
+      - name: Run SwiftLint
+        working-directory: App/App
+        run: |
+          # Create .swiftlint.yml if not exists
+          if [ ! -f ".swiftlint.yml" ]; then
+            echo "disabled_rules:" > .swiftlint.yml
+            echo "  - trailing_whitespace" >> .swiftlint.yml
+            echo "opt_in_rules:" >> .swiftlint.yml
+            echo "  - empty_count" >> .swiftlint.yml
+            echo "excluded:" >> .swiftlint.yml
+            echo "  - Pods" >> .swiftlint.yml
+            echo "  - build" >> .swiftlint.yml
+          fi
+          
+          # Run SwiftLint
+          swiftlint lint --reporter github-actions-logging || true
+      
+      - name: Check Swift Files Syntax
+        working-directory: App/App
+        run: |
+          for file in *.swift; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              xcrun swiftc -syntax "$file" -sdk $(xcrun --show-sdk-path) -target arm64-apple-ios15.0
+            fi
+          done
+  
+  validate-project:
+    name: Validate Xcode Project
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+      
+      - name: Validate Project Configuration
+        working-directory: App
+        run: |
+          # Check if project file is valid
+          xcodebuild -list -project App.xcodeproj
+          
+      - name: Check for Common Issues
+        working-directory: App
+        run: |
+          echo "Checking for common configuration issues..."
+          
+          # Check if Info.plist exists
+          if [ ! -f "App/Info.plist" ]; then
+            echo "❌ Error: Info.plist not found"
+            exit 1
+          fi
+          echo "✅ Info.plist exists"
+          
+          # Check if Assets.xcassets exists
+          if [ ! -d "App/Assets.xcassets" ]; then
+            echo "❌ Error: Assets.xcassets not found"
+            exit 1
+          fi
+          echo "✅ Assets.xcassets exists"
+          
+          # Check Swift version
+          if grep -q "SWIFT_VERSION = 5.0" App.xcodeproj/project.pbxproj; then
+            echo "✅ Swift version is set to 5.0"
+          else
+            echo "⚠️  Warning: Swift version might not be set correctly"
+          fi
+          
+          echo "✅ Project validation complete"
+  
+  dependency-check:
+    name: Check Dependencies
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Check Package.json
+        run: |
+          if [ -f "package.json" ]; then
+            echo "✅ package.json found"
+            cat package.json
+            
+            # Check for required Capacitor packages
+            required_packages=("@capacitor/core" "@capacitor/ios")
+            for pkg in "${required_packages[@]}"; do
+              if grep -q "\"$pkg\"" package.json; then
+                echo "✅ $pkg is listed in dependencies"
+              else
+                echo "⚠️  Warning: $pkg might be missing"
+              fi
+            done
+          else
+            echo "⚠️  Warning: package.json not found"
+          fi
+      
+      - name: Validate Swift Package
+        working-directory: App/CapApp-SPM
+        run: |
+          if [ -f "Package.swift" ]; then
+            echo "✅ Package.swift found"
+            swift package dump-package
+          else
+            echo "❌ Error: Package.swift not found"
+            exit 1
+          fi

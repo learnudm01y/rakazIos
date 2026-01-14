@@ -1,13 +1,74 @@
+# Xcode Build Files
 App/build
 App/Pods
 App/output
-App/App/public
 DerivedData
 xcuserdata
+*.xcworkspace
+!App/App.xcodeproj/project.xcworkspace
+
+# App Generated Files
+App/App/public
+
+# Swift Package Manager
+.swiftpm
+.build/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 
 # Cordova plugins for Capacitor
 capacitor-cordova-ios-plugins
 
-# Generated Config files
-App/App/capacitor.config.json
-App/App/config.xml
+# Generated Config files (uncomment if these should be generated)
+# App/App/capacitor.config.json
+# App/App/config.xml
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Code Signing
+*.mobileprovision
+*.p12
+*.cer
+*.certSigningRequest
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# CI/CD
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Environment
+.env
+.env.*
+!.env.example
