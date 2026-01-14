@@ -46,6 +46,12 @@ jobs:
             echo "No package.json found - skipping npm install"
           fi
       
+      - name: Setup CocoaPods
+        working-directory: App
+        run: |
+          sudo gem install cocoapods
+          pod install
+      
       - name: Setup Swift Package Manager Cache
         uses: actions/cache@v4
         with:
@@ -56,19 +62,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
       
-      - name: Resolve Swift Package Dependencies
+      - name: Resolve Dependencies
         working-directory: App
         run: |
-          xcodebuild -resolvePackageDependencies \
-            -project App.xcodeproj \
-            -scheme App \
-            || echo "⚠️ Warning: Could not resolve all dependencies"
+          if [ -f "App.xcworkspace" ]; then
+            echo "✅ Using CocoaPods workspace"
+          else
+            echo "📦 Using SPM project"
+            xcodebuild -resolvePackageDependencies \
+              -project App.xcodeproj \
+              -scheme App \
+              || echo "⚠️ Warning: Could not resolve all dependencies"
+          fi
       
       - name: Build iOS App (Debug - Simulator)
         working-directory: App
         run: |
           xcodebuild clean build \
-            -project App.xcodeproj \
+            -workspace App.xcworkspace \
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
