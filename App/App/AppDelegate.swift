@@ -11,12 +11,12 @@ import SystemConfiguration
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    private let TAG = "RakazAppDelegate"
+    private let tag = "RakazAppDelegate"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // تسجيل معلومات التطبيق
-        print("[\(TAG)] RAKAZ iOS App Started")
-        print("[\(TAG)] Handshake Key: RakazApp-Capacitor-iOS")
+        print("[\(tag)] RAKAZ iOS App Started")
+        print("[\(tag)] Handshake Key: RakazApp-Capacitor-iOS")
 
         // إنشاء النافذة وعرض SplashViewController
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // فحص إذا تم فتح التطبيق من Deep Link
         if let url = launchOptions?[.url] as? URL {
-            print("[\(TAG)] App launched with URL: \(url)")
+            print("[\(tag)] App launched with URL: \(url)")
             // تأخير معالجة الـ URL حتى يتم تحميل التطبيق
             DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) { [weak self] in
                 self?.handleIncomingURL(url)
@@ -45,7 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // التطبيق على وشك العودة للمقدمة
-        print("[\(TAG)] App returning to foreground")
+        print("[\(tag)] App returning to foreground")
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {

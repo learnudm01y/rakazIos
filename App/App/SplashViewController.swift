@@ -11,10 +11,10 @@ import SystemConfiguration
 class SplashViewController: UIViewController {
 
     // MARK: - Constants
-    private let TAG = "RakazSplash"
-    private let SPLASH_DURATION: TimeInterval = 5.0  // 5 seconds for full animation
-    private let MIN_SPLASH_TIME: TimeInterval = 3.0  // Minimum 3 seconds to show animation
-    private let NETWORK_CHECK_TIMEOUT: TimeInterval = 5.0  // 5 seconds timeout for network check
+    private let tag = "RakazSplash"
+    private let splashDuration: TimeInterval = 5.0  // 5 seconds for full animation
+    private let minSplashTime: TimeInterval = 3.0  // Minimum 3 seconds to show animation
+    private let networkCheckTimeout: TimeInterval = 5.0  // 5 seconds timeout for network check
 
     // MARK: - Properties
     private var splashWebView: WKWebView!
@@ -43,11 +43,11 @@ class SplashViewController: UIViewController {
         // Check internet in background
         checkInternetAsync()
 
-        // Animation complete after SPLASH_DURATION
-        DispatchQueue.main.asyncAfter(deadline: .now() + SPLASH_DURATION) { [weak self] in
+        // Animation complete after splashDuration
+        DispatchQueue.main.asyncAfter(deadline: .now() + splashDuration) { [weak self] in
             guard let self = self else { return }
             self.animationComplete = true
-            print("[\(self.TAG)] Animation complete")
+            print("[\(self.tag)] Animation complete")
             self.checkAndNavigate()
         }
     }
@@ -101,7 +101,7 @@ class SplashViewController: UIViewController {
                 connected = self.canReachInternet()
             }
 
-            print("[\(self.TAG)] Internet check result: \(connected)")
+            print("[\(self.tag)] Internet check result: \(connected)")
 
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -118,7 +118,7 @@ class SplashViewController: UIViewController {
                 } else {
                     // Wait for animation minimum time before showing error
                     let elapsed = Date().timeIntervalSince(self.startTime)
-                    let remaining = max(0, self.MIN_SPLASH_TIME - elapsed)
+                    let remaining = max(0, self.minSplashTime - elapsed)
                     DispatchQueue.main.asyncAfter(deadline: .now() + remaining) { [weak self] in
                         guard let self = self, !self.navigated else { return }
                         self.showErrorPage()
@@ -128,9 +128,9 @@ class SplashViewController: UIViewController {
         }
 
         // Timeout for network check
-        DispatchQueue.main.asyncAfter(deadline: .now() + NETWORK_CHECK_TIMEOUT) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + networkCheckTimeout) { [weak self] in
             guard let self = self, !self.networkCheckComplete else { return }
-            print("[\(self.TAG)] Network check timeout, assuming connected")
+            print("[\(self.tag)] Network check timeout, assuming connected")
             self.networkCheckComplete = true
             self.hasInternet = true
             // Assume connected and try to load
@@ -251,7 +251,12 @@ class SplashViewController: UIViewController {
                 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
-                    html, body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #fff; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
+                    html, body { 
+                        font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+                        background: #fff; height: 100%; display: flex; 
+                        flex-direction: column; justify-content: center; 
+                        align-items: center; padding: 20px; text-align: center; 
+                    }
                     .container { max-width: 400px; width: 100%; display: flex; flex-direction: column; align-items: center; }
                     .icon { font-size: 80px; margin-bottom: 30px; }
                     h1 { font-size: 22px; color: #333; margin-bottom: 15px; }
@@ -302,7 +307,7 @@ class SplashViewController: UIViewController {
                     self.showErrorPage()
                 } else {
                     // Still not loaded, navigate anyway
-                    print("[\(self.TAG)] Timeout - navigating anyway")
+                    print("[\(self.tag)] Timeout - navigating anyway")
                     self.navigateToMainViewController()
                 }
             }
@@ -404,7 +409,7 @@ extension SplashViewController: WKNavigationDelegate {
                 setupSplashWebView()
                 checkInternetAsync()
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + SPLASH_DURATION) { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: .now() + splashDuration) { [weak self] in
                     guard let self = self else { return }
                     self.animationComplete = true
                     self.checkAndNavigate()

@@ -13,10 +13,10 @@ import Capacitor
 class RakazViewController: CAPBridgeViewController {
 
     // MARK: - Constants
-    private let TAG = "RakazViewController"
+    private let tag = "RakazViewController"
 
     /// JavaScript لحقن معرف التطبيق الأصلي - هام جداً لكي يتعرف Laravel على نوع التطبيق
-    private let NATIVE_IDENTIFIER_JS = """
+    private let nativeIdentifierJs = """
         window.isRakazNative = true;
         window.RAKAZ_NATIVE_APP = true;
         window.RAKAZ_PLATFORM = 'ios';
@@ -36,14 +36,14 @@ class RakazViewController: CAPBridgeViewController {
     """
 
     /// JavaScript لإخفاء Splash Screen
-    private let HIDE_SPLASH_JS = """
+    private let hideSplashJs = """
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen) {
             window.Capacitor.Plugins.SplashScreen.hide();
         }
     """
 
     /// JavaScript للإشعار بـ Payment Callback
-    private let PAYMENT_CALLBACK_JS = """
+    private let paymentCallbackJs = """
         window.dispatchEvent(new CustomEvent('paymentCallback', { detail: { url: '%@' } }));
         if (window.onPaymentCallback) { window.onPaymentCallback('%@'); }
     """
@@ -57,7 +57,7 @@ class RakazViewController: CAPBridgeViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        print("[\(TAG)] viewDidLoad")
+        print("[\(tag)] viewDidLoad")
         setupWebViewObservers()
     }
 
@@ -74,7 +74,7 @@ class RakazViewController: CAPBridgeViewController {
     // MARK: - WebView Setup
     private func setupWebViewDelegates() {
         guard let webView = webView else {
-            print("[\(TAG)] WebView not available, retrying...")
+            print("[\(tag)] WebView not available, retrying...")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                 self?.setupWebViewDelegates()
             }
@@ -89,7 +89,7 @@ class RakazViewController: CAPBridgeViewController {
             self.hideSplashScreen()
         }
 
-        print("[\(TAG)] WebView delegates setup complete")
+        print("[\(tag)] WebView delegates setup complete")
     }
 
     private func setupWebViewObservers() {
@@ -106,7 +106,7 @@ class RakazViewController: CAPBridgeViewController {
     @objc func handleDeepLink(_ notification: Notification) {
         guard let url = notification.userInfo?["url"] as? URL else { return }
 
-        print("[\(TAG)] Deep link received: \(url.absoluteString)")
+        print("[\(tag)] Deep link received: \(url.absoluteString)")
         handlePaymentCallback(url: url)
     }
 
@@ -122,13 +122,13 @@ class RakazViewController: CAPBridgeViewController {
             }
         }
 
-        print("[\(TAG)] Loading callback URL: \(callbackURL)")
+        print("[\(tag)] Loading callback URL: \(callbackURL)")
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             guard let self = self, let webView = self.webView else { return }
 
             // إشعار JavaScript بالـ callback
-            let js = String(format: self.PAYMENT_CALLBACK_JS, callbackURL, callbackURL)
+            let js = String(format: self.paymentCallbackJs, callbackURL, callbackURL)
             webView.evaluateJavaScript(js, completionHandler: nil)
 
             // تحميل صفحة callback
@@ -140,11 +140,11 @@ class RakazViewController: CAPBridgeViewController {
 
     // MARK: - Native Identifier Injection
     private func injectNativeIdentifier() {
-        webView?.evaluateJavaScript(NATIVE_IDENTIFIER_JS) { [weak self] _, error in
+        webView?.evaluateJavaScript(nativeIdentifierJs) { [weak self] _, error in
             if let error = error {
-                print("[\(self?.TAG ?? "RakazVC")] Error injecting native identifier: \(error)")
+                print("[\(self?.tag ?? "RakazVC")] Error injecting native identifier: \(error)")
             } else {
-                print("[\(self?.TAG ?? "RakazVC")] Native identifier injected successfully")
+                print("[\(self?.tag ?? "RakazVC")] Native identifier injected successfully")
             }
         }
     }
@@ -154,19 +154,19 @@ class RakazViewController: CAPBridgeViewController {
         guard !splashHidden else { return }
         splashHidden = true
 
-        webView?.evaluateJavaScript(HIDE_SPLASH_JS, completionHandler: nil)
-        print("[\(TAG)] Splash screen hidden")
+        webView?.evaluateJavaScript(hideSplashJs, completionHandler: nil)
+        print("[\(tag)] Splash screen hidden")
     }
 
     // MARK: - Error Page
     private func showErrorPage() {
         guard !isShowingErrorPage else {
-            print("[\(TAG)] Already showing error page")
+            print("[\(tag)] Already showing error page")
             return
         }
 
         isShowingErrorPage = true
-        print("[\(TAG)] Showing error page")
+        print("[\(tag)] Showing error page")
 
         // تحميل صفحة الخطأ من الـ assets
         if let errorPagePath = Bundle.main.path(forResource: "error", ofType: "html", inDirectory: "public") {
@@ -262,7 +262,7 @@ extension RakazViewController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         let url = webView.url?.absoluteString ?? "unknown"
-        print("[\(TAG)] Page started loading: \(url)")
+        print("[\(tag)] Page started loading: \(url)")
 
         // إعادة تعيين حالة صفحة الخطأ
         if !url.contains("error.html") {
@@ -275,7 +275,7 @@ extension RakazViewController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let url = webView.url?.absoluteString ?? ""
-        print("[\(TAG)] Page finished loading: \(url)")
+        print("[\(tag)] Page finished loading: \(url)")
 
         // إعادة حقن المعرف بعد تحميل الصفحة
         injectNativeIdentifier()
@@ -298,7 +298,7 @@ extension RakazViewController: WKNavigationDelegate {
 
     private func handleNavigationError(_ error: Error) {
         let nsError = error as NSError
-        print("[\(TAG)] Navigation error: \(nsError.code) - \(nsError.localizedDescription)")
+        print("[\(tag)] Navigation error: \(nsError.code) - \(nsError.localizedDescription)")
 
         // أخطاء الشبكة الشائعة
         let networkErrorCodes = [
@@ -344,9 +344,9 @@ extension RakazViewController: WKNavigationDelegate {
         }
 
         if isPaymentURL {
-            print("[\(TAG)] Opening payment URL in Safari: \(url)")
+            print("[\(tag)] Opening payment URL in Safari: \(url)")
             UIApplication.shared.open(url, options: [:]) { success in
-                print("[\(self.TAG)] Safari opened: \(success)")
+                print("[\(self.tag)] Safari opened: \(success)")
             }
             decisionHandler(.cancel)
             return

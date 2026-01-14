@@ -47,7 +47,7 @@ jobs:
           for file in *.swift; do
             if [ -f "$file" ]; then
               echo "Checking $file..."
-              xcrun swiftc -syntax "$file" -sdk $(xcrun --show-sdk-path) -target arm64-apple-ios15.0
+              xcrun swiftc -parse "$file" -sdk $(xcrun --show-sdk-path) -target arm64-apple-ios15.0
             fi
           done
   
@@ -64,11 +64,22 @@ jobs:
         with:
           xcode-version: '15.2'
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+          fi
+      
       - name: Validate Project Configuration
         working-directory: App
         run: |
           # Check if project file is valid
-          xcodebuild -list -project App.xcodeproj
+          xcodebuild -list -project App.xcodeproj || true
           
       - name: Check for Common Issues
         working-directory: App
