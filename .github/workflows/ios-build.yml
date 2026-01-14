@@ -41,7 +41,7 @@ jobs:
         run: |
           if [ -f "package.json" ]; then
             npm install
-            npx cap sync ios
+            npx cap sync ios --no-build
           else
             echo "No package.json found - skipping npm install"
           fi
