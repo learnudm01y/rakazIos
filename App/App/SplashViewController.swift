@@ -34,8 +34,8 @@ class SplashViewController: UIViewController {
         startTime = Date()
         view.backgroundColor = .white
 
-        print("[\(TAG)] SplashViewController viewDidLoad")
-        print("[\(TAG)] Handshake Key: RakazApp-Capacitor-iOS")
+        print("[\(tag)] SplashViewController viewDidLoad")
+        print("[\(tag)] Handshake Key: RakazApp-Capacitor-iOS")
 
         // Always show splash animation first
         setupSplashWebView()
@@ -84,7 +84,7 @@ class SplashViewController: UIViewController {
                     return
                 }
             }
-            print("[\(TAG)] Could not find splash.html")
+            print("[\(tag)] Could not find splash.html")
         }
     }
 
@@ -154,7 +154,7 @@ class SplashViewController: UIViewController {
             let semaphore = DispatchSemaphore(value: 0)
             var success = false
 
-            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+            let task = URLSession.shared.dataTask(with: request) { _, response, _ in
                 if let httpResponse = response as? HTTPURLResponse {
                     success = (httpResponse.statusCode >= 200 && httpResponse.statusCode < 400)
                 }
@@ -233,7 +233,7 @@ class SplashViewController: UIViewController {
         guard !navigated else { return }
         navigated = true
 
-        print("[\(TAG)] Showing error page")
+        print("[\(tag)] Showing error page")
 
         // Load error page from public folder
         if let errorPath = Bundle.main.path(forResource: "error", ofType: "html", inDirectory: "public") {
@@ -248,7 +248,8 @@ class SplashViewController: UIViewController {
             <html lang='ar' dir='rtl'>
             <head>
                 <meta charset='UTF-8'>
-                <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+                <meta name='viewport' 
+                      content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     html, body { 
@@ -264,7 +265,11 @@ class SplashViewController: UIViewController {
                     .icon { font-size: 80px; margin-bottom: 30px; }
                     h1 { font-size: 22px; color: #333; margin-bottom: 15px; }
                     p { font-size: 16px; color: #666; margin-bottom: 30px; }
-                    button { background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%); color: #fff; border: none; padding: 16px 50px; font-size: 18px; border-radius: 25px; cursor: pointer; }
+                    button { 
+                        background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%); 
+                        color: #fff; border: none; padding: 16px 50px; 
+                        font-size: 18px; border-radius: 25px; cursor: pointer; 
+                    }
                 </style>
             </head>
             <body>
@@ -285,7 +290,8 @@ class SplashViewController: UIViewController {
     private func checkAndNavigate() {
         guard !navigated else { return }
 
-        print("[\(TAG)] checkAndNavigate: animationComplete=\(animationComplete), websiteLoaded=\(websiteLoaded), hasNetworkError=\(hasNetworkError)")
+        print("[\(tag)] checkAndNavigate: animation=\(animationComplete), "
+            + "loaded=\(websiteLoaded), error=\(hasNetworkError)")
 
         // Must wait for animation to complete
         if !animationComplete { return }
@@ -322,7 +328,7 @@ class SplashViewController: UIViewController {
         guard !navigated else { return }
         navigated = true
 
-        print("[\(TAG)] Navigating to RakazViewController")
+        print("[\(tag)] Navigating to RakazViewController")
 
         // Transition to the main storyboard
         DispatchQueue.main.async { [weak self] in
@@ -360,7 +366,7 @@ extension SplashViewController: WKNavigationDelegate {
             let url = webView.url?.absoluteString ?? ""
             if !hasNetworkError && url.contains("rakaz.store") {
                 websiteLoaded = true
-                print("[\(TAG)] Website loaded successfully")
+                print("[\(tag)] Website loaded successfully")
                 checkAndNavigate()
             }
         }
@@ -380,7 +386,7 @@ extension SplashViewController: WKNavigationDelegate {
 
     private func handleWebViewError(_ error: Error) {
         let nsError = error as NSError
-        print("[\(TAG)] WebView error: \(nsError.code) - \(nsError.localizedDescription)")
+        print("[\(tag)] WebView error: \(nsError.code) - \(nsError.localizedDescription)")
 
         // Network error codes
         let networkErrorCodes = [
@@ -397,7 +403,11 @@ extension SplashViewController: WKNavigationDelegate {
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
         // Allow error page retry button to reload
         if webView === splashWebView {
             if let url = navigationAction.request.url?.absoluteString,

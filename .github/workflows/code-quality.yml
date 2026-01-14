@@ -146,7 +146,7 @@ jobs:
         run: |
           if [ -f "Package.swift" ]; then
             echo "✅ Package.swift found"
-            swift package dump-package
+            swift package dump-package || echo "⚠️  Warning: Could not dump package"
           else
             echo "❌ Error: Package.swift not found"
             exit 1

@@ -69,8 +69,7 @@ jobs:
             -destination 'generic/platform=iOS' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcpretty && exit ${PIPESTATUS[0]}
+            CODE_SIGNING_ALLOWED=NO
       
       - name: Upload Build Artifacts
         if: success()
