@@ -13,7 +13,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private let tag = "RakazAppDelegate"
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         // تسجيل معلومات التطبيق
         print("[\(tag)] RAKAZ iOS App Started")
         print("[\(tag)] Handshake Key: RakazApp-Capacitor-iOS")
@@ -57,8 +60,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - URL Scheme Handling (Deep Links)
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        print("[\(TAG)] App opened with URL: \(url)")
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        print("[\(tag)] App opened with URL: \(url)")
 
         // معالجة روابط الدفع
         if handlePaymentURL(url) {
@@ -70,20 +77,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Universal Links Handling
-    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        print("[\(TAG)] Universal Link activity received")
+    func application(
+        _ application: UIApplication,
+        continue userActivity: NSUserActivity,
+        restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+    ) -> Bool {
+        print("[\(tag)] Universal Link activity received")
 
         // معالجة Universal Links
         if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
            let url = userActivity.webpageURL {
-            print("[\(TAG)] Universal Link URL: \(url)")
+            print("[\(tag)] Universal Link URL: \(url)")
 
             if handlePaymentURL(url) {
                 return true
             }
         }
 
-        return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+        return ApplicationDelegateProxy.shared.application(
+            application,
+            continue: userActivity,
+            restorationHandler: restorationHandler
+        )
     }
 
     // MARK: - Payment URL Handling
@@ -98,7 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 urlString.contains("myfatoorah")
 
         if isPaymentCallback {
-            print("[\(TAG)] Payment callback detected: \(url)")
+            print("[\(tag)] Payment callback detected: \(url)")
             handleIncomingURL(url)
             return true
         }
@@ -114,7 +129,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - URL Processing
     private func handleIncomingURL(_ url: URL) {
-        print("[\(TAG)] Processing incoming URL: \(url)")
+        print("[\(tag)] Processing incoming URL: \(url)")
 
         // إرسال إشعار للـ ViewController
         NotificationCenter.default.post(

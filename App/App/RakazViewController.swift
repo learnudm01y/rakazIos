@@ -31,8 +31,10 @@ class RakazViewController: CAPBridgeViewController {
             document.body.setAttribute('data-rakaz-native', 'true');
             document.body.setAttribute('data-rakaz-platform', 'ios');
         }
-        window.dispatchEvent(new CustomEvent('rakazNativeReady', { detail: { platform: 'ios', handshake: 'RakazApp-Capacitor-iOS' } }));
-        console.log('[RakazApp] iOS Native identifier injected - Handshake: RakazApp-Capacitor-iOS');
+        window.dispatchEvent(new CustomEvent('rakazNativeReady', { 
+            detail: { platform: 'ios', handshake: 'RakazApp-Capacitor-iOS' } 
+        }));
+        console.log('[RakazApp] iOS Native identifier injected');
     """
 
     /// JavaScript لإخفاء Splash Screen
@@ -128,8 +130,8 @@ class RakazViewController: CAPBridgeViewController {
             guard let self = self, let webView = self.webView else { return }
 
             // إشعار JavaScript بالـ callback
-            let js = String(format: self.paymentCallbackJs, callbackURL, callbackURL)
-            webView.evaluateJavaScript(js, completionHandler: nil)
+            let javascript = String(format: self.paymentCallbackJs, callbackURL, callbackURL)
+            webView.evaluateJavaScript(javascript, completionHandler: nil)
 
             // تحميل صفحة callback
             if let url = URL(string: callbackURL) {
@@ -168,62 +170,83 @@ class RakazViewController: CAPBridgeViewController {
         isShowingErrorPage = true
         print("[\(tag)] Showing error page")
 
+        loadErrorPage()
+    }
+    
+    private func loadErrorPage() {
         // تحميل صفحة الخطأ من الـ assets
-        if let errorPagePath = Bundle.main.path(forResource: "error", ofType: "html", inDirectory: "public") {
+        if let errorPagePath = Bundle.main.path(
+            forResource: "error",
+            ofType: "html",
+            inDirectory: "public"
+        ) {
             let errorPageURL = URL(fileURLWithPath: errorPagePath)
-            webView?.loadFileURL(errorPageURL, allowingReadAccessTo: errorPageURL.deletingLastPathComponent())
+            webView?.loadFileURL(
+                errorPageURL,
+                allowingReadAccessTo: errorPageURL.deletingLastPathComponent()
+            )
         } else {
-            // Fallback HTML
-            let fallbackHTML = """
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>خطأ في الاتصال</title>
-                <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body {
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-                        color: white;
-                        min-height: 100vh;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 20px;
-                    }
-                    .container {
-                        text-align: center;
-                        max-width: 400px;
-                    }
-                    .icon { font-size: 80px; margin-bottom: 20px; }
-                    h1 { font-size: 24px; margin-bottom: 15px; color: #c9a45c; }
-                    p { font-size: 16px; color: #aaa; margin-bottom: 30px; line-height: 1.6; }
-                    button {
-                        background: linear-gradient(135deg, #c9a45c 0%, #d4af37 100%);
-                        color: #1a1a1a;
-                        border: none;
-                        padding: 15px 40px;
-                        font-size: 16px;
-                        font-weight: bold;
-                        border-radius: 30px;
-                        cursor: pointer;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="icon">📡</div>
-                    <h1>خطأ في الاتصال</h1>
-                    <p>تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>
-                    <button onclick="location.reload()">إعادة المحاولة</button>
-                </div>
-            </body>
-            </html>
-            """
-            webView?.loadHTMLString(fallbackHTML, baseURL: nil)
+            loadFallbackErrorPage()
         }
+    }
+    
+    private func loadFallbackErrorPage() {
+        let fallbackHTML = generateErrorHTML()
+        webView?.loadHTMLString(fallbackHTML, baseURL: nil)
+    }
+    
+    private func generateErrorHTML() -> String {
+        return """
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>خطأ في الاتصال</title>
+            \(getErrorPageStyles())
+        </head>
+        <body>
+            <div class="container">
+                <div class="icon">📡</div>
+                <h1>خطأ في الاتصال</h1>
+                <p>تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>
+                <button onclick="location.reload()">إعادة المحاولة</button>
+            </div>
+        </body>
+        </html>
+        """
+    }
+    
+    private func getErrorPageStyles() -> String {
+        return """
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                color: white;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            .container { text-align: center; max-width: 400px; }
+            .icon { font-size: 80px; margin-bottom: 20px; }
+            h1 { font-size: 24px; margin-bottom: 15px; color: #c9a45c; }
+            p { font-size: 16px; color: #aaa; margin-bottom: 30px; line-height: 1.6; }
+            button {
+                background: linear-gradient(135deg, #c9a45c 0%, #d4af37 100%);
+                color: #1a1a1a;
+                border: none;
+                padding: 15px 40px;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 30px;
+                cursor: pointer;
+            }
+        </style>
+        """
     }
 
     // MARK: - Network Check
@@ -315,7 +338,11 @@ extension RakazViewController: WKNavigationDelegate {
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
         guard let url = navigationAction.request.url else {
             decisionHandler(.allow)
             return

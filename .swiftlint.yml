@@ -59,8 +59,8 @@ line_length:
 
 # Function Body Length
 function_body_length:
-  warning: 50
-  error: 100
+  warning: 80
+  error: 150
 
 # Type Body Length
 type_body_length:

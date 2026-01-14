@@ -257,7 +257,10 @@ class SplashViewController: UIViewController {
                         flex-direction: column; justify-content: center; 
                         align-items: center; padding: 20px; text-align: center; 
                     }
-                    .container { max-width: 400px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+                    .container { 
+                        max-width: 400px; width: 100%; display: flex; 
+                        flex-direction: column; align-items: center; 
+                    }
                     .icon { font-size: 80px; margin-bottom: 30px; }
                     h1 { font-size: 22px; color: #333; margin-bottom: 15px; }
                     p { font-size: 16px; color: #666; margin-bottom: 30px; }
