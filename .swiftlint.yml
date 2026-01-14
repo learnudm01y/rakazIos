@@ -3,10 +3,6 @@
 # Disabled Rules
 disabled_rules:
   - trailing_whitespace
-  - line_length
-  - file_length
-  - type_body_length
-  - function_body_length
   - cyclomatic_complexity
 
 # Opt-In Rules
@@ -64,8 +60,8 @@ function_body_length:
 
 # Type Body Length
 type_body_length:
-  warning: 300
-  error: 500
+  warning: 450
+  error: 600
 
 # Identifier Name
 identifier_name:
